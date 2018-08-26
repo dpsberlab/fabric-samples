@@ -14,13 +14,13 @@ services:
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.fas.rf
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.fas.rf-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/8e94f72404da25b792890e0b17e38e304218b8a05e8799f0c766747d392dc43e_sk
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.fas.rf-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/f1d2fde1322aece0d54320cc27d06b2c3e00a27ecd3fc33a15e550525b0116ae_sk
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
     volumes:
-      - ./crypto-config/peerOrganizations/org1.fas.rf/ca/:/etc/hyperledger/fabric-ca-server-config
+      - ./crypto-config/peerOrganizations/org2.fas.rf/ca/:/etc/hyperledger/fabric-ca-server-config
     container_name: ca.fas.rf
     networks:
       - basic
@@ -42,21 +42,21 @@ services:
     volumes:
         - ./config/:/etc/hyperledger/configtx
         - ./crypto-config/ordererOrganizations/fas.rf/orderers/orderer.fas.rf/:/etc/hyperledger/msp/orderer
-        - ./crypto-config/peerOrganizations/org1.fas.rf/peers/peer0.org1.fas.rf/:/etc/hyperledger/msp/peerOrg1
+        - ./crypto-config/peerOrganizations/org2.fas.rf/peers/peer0.org2.fas.rf/:/etc/hyperledger/msp/peerOrg2
     networks:
       - basic
 
-  peer0.org1.fas.rf:
-    container_name: peer0.org1.fas.rf
+  peer0.org2.fas.rf:
+    container_name: peer0.org2.fas.rf
     image: hyperledger/fabric-peer
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer0.org1.fas.rf
+      - CORE_PEER_ID=peer0.org2.fas.rf
       - CORE_LOGGING_PEER=info
       - CORE_CHAINCODE_LOGGING_LEVEL=info
-      - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
-      - CORE_PEER_ADDRESS=peer0.org1.fas.rf:7051
+      - CORE_PEER_ADDRESS=peer0.org2.fas.rf:7051
       # # the following setting starts chaincode containers on the same
       # # bridge network as the peers
       # # https://docs.docker.com/compose/networking/
@@ -76,8 +76,8 @@ services:
       - 7053:7053
     volumes:
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/org1.fas.rf/peers/peer0.org1.fas.rf/msp:/etc/hyperledger/msp/peer
-        - ./crypto-config/peerOrganizations/org1.fas.rf/users:/etc/hyperledger/msp/users
+        - ./crypto-config/peerOrganizations/org2.fas.rf/peers/peer0.org2.fas.rf/msp:/etc/hyperledger/msp/peer
+        - ./crypto-config/peerOrganizations/org2.fas.rf/users:/etc/hyperledger/msp/users
         - ./config:/etc/hyperledger/configtx
     depends_on:
       - orderer.fas.rf
@@ -107,9 +107,9 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=info
       - CORE_PEER_ID=cli
-      - CORE_PEER_ADDRESS=peer0.org1.fas.rf:7051
-      - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fas.rf/users/Admin@org1.fas.rf/msp
+      - CORE_PEER_ADDRESS=peer0.org2.fas.rf:7051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.fas.rf/users/Admin@org2.fas.rf/msp
       - CORE_CHAINCODE_KEEPALIVE=10
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
@@ -121,5 +121,5 @@ services:
         - basic
     #depends_on:
     #  - orderer.fas.rf
-    #  - peer0.org1.fas.rf
+    #  - peer0.org2.fas.rf
     #  - couchdb
